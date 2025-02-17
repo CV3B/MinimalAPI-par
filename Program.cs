@@ -14,6 +14,13 @@ List<Order> orders = new()
     new Order {Id = 3, Name = "Ferrari", Date = "2025-02-17"}    
 };
 
+List<Category> categories = new() 
+{
+    new Category {Id = 1, Name = "Movie"},
+    new Category {Id = 2, Name = "Games"},
+    new Category {Id = 3, Name = "Cars"}    
+};
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument(config =>
@@ -102,9 +109,42 @@ app.MapPut("/orders/{id}", (int id, Order updatedOrder) => {
 app.MapDelete("/orders/{id}", (int id) => {
     var order = orders.FirstOrDefault(o => o.Id == id);
     if (order is null) return Results.NotFound("Ordern hittades inte.");
-
+  
     orders.Remove(order);
     return Results.Ok($"Ordern med ID {id} togs bort.");
+});
+
+
+// CATEGORIES
+app.MapGet("/categories", () => categories);
+
+app.MapGet("/categories/{id}", (int id) => {
+    var category = categories.FirstOrDefault(c => c.Id == id);
+
+    return category is not null ? Results.Ok(category) : Results.NotFound($"Ingen kategori med ID {id}.");
+});
+
+app.MapPost("/categories", (Category newCategory) => {
+    if (categories.Any(c => c.Id == newCategory.Id)) return Results.BadRequest("Kategori-ID redan upptaget");
+
+    categories.Add(newCategory);
+    return Results.Created($"/categories/{newCategory.Id}", newCategory);
+});
+
+app.MapPut("/categories/{id}", (int id, Category updatedCategory) => {
+    var category = categories.FirstOrDefault(c => c.Id == id);
+    if (category is null) return Results.NotFound("Kategorin hittades inte.");
+
+    category.Name = updatedCategory.Name;
+    return Results.Ok(category);
+});
+
+app.MapDelete("/categories/{id}", (int id) => {
+    var category = categories.FirstOrDefault(c => c.Id == id);
+    if (category is null) return Results.NotFound("Kategorin hittades inte.");
+
+    categories.Remove(category);
+    return Results.Ok($"Kategorin med ID {id} togs bort.");
 });
 
 app.Run();
