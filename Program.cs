@@ -16,9 +16,9 @@ List<Order> orders = new()
 
 List<Product> products = new()
 {
-    new Product { Id = 1, ProductName = "Engine" },
-    new Product { Id = 2, ProductName = "Gearbox" },
-    new Product { Id = 3, ProductName = "Petrol" }
+    new Product { Id = 1, Name = "Engine" },
+    new Product { Id = 2, Name = "Gearbox" },
+    new Product { Id = 3, Name = "Petrol" }
 };
 
 var builder = WebApplication.CreateBuilder(args);
@@ -112,6 +112,40 @@ app.MapDelete("/orders/{id}", (int id) => {
 
     orders.Remove(order);
     return Results.Ok($"Ordern med ID {id} togs bort.");
+});
+
+// PRODUCTS
+app.MapGet("/products", () => products);
+
+app.MapGet("/products/{id}", (int id) =>
+{
+    var product = products.FirstOrDefault(p => p.Id == id);
+    return product is not null ? Results.Ok(product) : Results.NotFound($"Product not found with ID: {id}");
+});
+
+app.MapPost("/products", (Product newProduct) =>
+{
+    if (products.Any(p => p.Id == newProduct.Id))
+        return Results.BadRequest($"Product with ID: {newProduct.Id} already exists");
+    products.Add(newProduct);
+    return Results.Created($"/products/{newProduct.Id}", newProduct);
+});
+
+app.MapPut("/products/{id}", (int id, Product updatedProduct) =>
+{
+    var product = products.FirstOrDefault(p => p.Id == id);
+    if (product is null) return Results.NotFound($"Product not found with ID: {id}");
+    
+    product.Name = updatedProduct.Name;
+    return Results.Ok(product);
+});
+
+app.MapDelete("/products/{id}", (int id) => 
+{
+    var product = products.FirstOrDefault(p => p.Id == id);
+    if (product is null) return Results.NotFound($"Product not found with ID: {id}");
+    products.Remove(product);
+    return Results.Ok($"Product with id {id} deleted");
 });
 
 app.Run();
