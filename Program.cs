@@ -105,10 +105,6 @@ app.MapDelete("/orders/{id}", (int id) => {
 
     orders.Remove(order);
     return Results.Ok($"Ordern med ID {id} togs bort.");
-<<<<<<< HEAD
 });
-=======
-
->>>>>>> 9ecb974445470d511244f5ab93f7c8aac07cf40a
 
 app.Run();
