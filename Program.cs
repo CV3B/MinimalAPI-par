@@ -14,11 +14,11 @@ List<Order> orders = new()
     new Order {Id = 3, Name = "Ferrari", Date = "2025-02-17"}    
 };
 
-List<Product> products = new()
+List<Category> categories = new() 
 {
-    new Product { Id = 1, Name = "Engine" },
-    new Product { Id = 2, Name = "Gearbox" },
-    new Product { Id = 3, Name = "Petrol" }
+    new Category {Id = 1, Name = "Movie"},
+    new Category {Id = 2, Name = "Games"},
+    new Category {Id = 3, Name = "Cars"}    
 };
 
 var builder = WebApplication.CreateBuilder(args);
@@ -109,43 +109,42 @@ app.MapPut("/orders/{id}", (int id, Order updatedOrder) => {
 app.MapDelete("/orders/{id}", (int id) => {
     var order = orders.FirstOrDefault(o => o.Id == id);
     if (order is null) return Results.NotFound("Ordern hittades inte.");
-
+  
     orders.Remove(order);
     return Results.Ok($"Ordern med ID {id} togs bort.");
 });
 
-// PRODUCTS
-app.MapGet("/products", () => products);
 
-app.MapGet("/products/{id}", (int id) =>
-{
-    var product = products.FirstOrDefault(p => p.Id == id);
-    return product is not null ? Results.Ok(product) : Results.NotFound($"Product not found with ID: {id}");
+// CATEGORIES
+app.MapGet("/categories", () => categories);
+
+app.MapGet("/categories/{id}", (int id) => {
+    var category = categories.FirstOrDefault(c => c.Id == id);
+
+    return category is not null ? Results.Ok(category) : Results.NotFound($"Ingen kategori med ID {id}.");
 });
 
-app.MapPost("/products", (Product newProduct) =>
-{
-    if (products.Any(p => p.Id == newProduct.Id))
-        return Results.BadRequest($"Product with ID: {newProduct.Id} already exists");
-    products.Add(newProduct);
-    return Results.Created($"/products/{newProduct.Id}", newProduct);
+app.MapPost("/categories", (Category newCategory) => {
+    if (categories.Any(c => c.Id == newCategory.Id)) return Results.BadRequest("Kategori-ID redan upptaget");
+
+    categories.Add(newCategory);
+    return Results.Created($"/categories/{newCategory.Id}", newCategory);
 });
 
-app.MapPut("/products/{id}", (int id, Product updatedProduct) =>
-{
-    var product = products.FirstOrDefault(p => p.Id == id);
-    if (product is null) return Results.NotFound($"Product not found with ID: {id}");
-    
-    product.Name = updatedProduct.Name;
-    return Results.Ok(product);
+app.MapPut("/categories/{id}", (int id, Category updatedCategory) => {
+    var category = categories.FirstOrDefault(c => c.Id == id);
+    if (category is null) return Results.NotFound("Kategorin hittades inte.");
+
+    category.Name = updatedCategory.Name;
+    return Results.Ok(category);
 });
 
-app.MapDelete("/products/{id}", (int id) => 
-{
-    var product = products.FirstOrDefault(p => p.Id == id);
-    if (product is null) return Results.NotFound($"Product not found with ID: {id}");
-    products.Remove(product);
-    return Results.Ok($"Product with id {id} deleted");
+app.MapDelete("/categories/{id}", (int id) => {
+    var category = categories.FirstOrDefault(c => c.Id == id);
+    if (category is null) return Results.NotFound("Kategorin hittades inte.");
+
+    categories.Remove(category);
+    return Results.Ok($"Kategorin med ID {id} togs bort.");
 });
 
 app.Run();
