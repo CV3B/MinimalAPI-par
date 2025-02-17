@@ -14,6 +14,13 @@ List<Order> orders = new()
     new Order {Id = 3, Name = "Ferrari", Date = "2025-02-17"}    
 };
 
+List<Product> products = new()
+{
+    new Product { Id = 1, ProductName = "Engine" },
+    new Product { Id = 2, ProductName = "Gearbox" },
+    new Product { Id = 3, ProductName = "Petrol" }
+};
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument(config =>
